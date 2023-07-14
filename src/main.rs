@@ -1,3 +1,9 @@
+use time::OffsetDateTime;
+
 fn main() {
-    println!("Hello, world!");
+
+let now = OffsetDateTime::now_utc();
+
+println!("{now}");
+
 }
