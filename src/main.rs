@@ -1,10 +1,8 @@
 use std::fs::{File, self};
+use std::io::stdin;
+use std::collections::HashMap;
 use std::process::exit;
 use serde_json;
-
-use file_io::*;
-
-mod file_io;
 
 fn main() {
     let mut data = match File::open(".friendstime.json") {
@@ -22,7 +20,7 @@ fn main() {
         }};
         match user_response {
             'A' => {
-                let new_name = get_data("What is their name?");
+                let new_name = get_data("What is their name?").trim().to_string();
                 let new_offset: i8 = loop { match get_data("What is their UTC offset?").trim().parse() {
                     Ok(num) => break num,
                     Err(_) => {
@@ -31,7 +29,7 @@ fn main() {
                     }
                 }};
 
-                data.insert(new_name, new_offset);
+                data.insert(new_name.to_string(), new_offset);
 
                 continue;
             }
@@ -49,4 +47,32 @@ fn main() {
             }
         }
     }
+}
+
+fn get_data(msg: &str) -> String {
+    println!("{msg}");
+    let mut data_in = String::new();
+    
+    stdin().read_line(&mut data_in).unwrap();
+
+    return data_in;
+}
+
+fn first_run() -> HashMap<String, i8> {
+    let mut data = HashMap::new();
+
+    let name = get_data("What is your name?").trim().to_string();
+    let offset: i8 = loop {
+            match get_data("What is your UTC offset?").trim().parse() {
+            Ok(num) => break num,
+            Err(_) => {
+                println!("That isn't a valid number!");
+                continue;
+            }
+        }
+    };
+
+    data.insert(name, offset);
+
+    return data;
 }
