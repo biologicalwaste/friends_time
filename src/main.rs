@@ -12,8 +12,6 @@ fn main() {
         Err(_) => first_run()
     };
 
-    data.insert("Rosa".to_string(), 16);
-
     let data_out = serde_json::to_string_pretty(&data).expect("This doesn't parse for some reason!");
-    fs::write(".friendstime.json", data_out).unwrap();f
+    fs::write(".friendstime.json", data_out).unwrap();
 }
