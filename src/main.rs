@@ -2,6 +2,7 @@ use std::fs::{File, self};
 use std::io::stdin;
 use std::collections::HashMap;
 use std::process::exit;
+
 use serde_json;
 
 fn main() {
@@ -35,23 +36,18 @@ fn main() {
                 }};
 
                 data.insert(new_name.to_string(), new_offset);
-
-                continue;
             }
             'R' => {
                 let to_remove = get_data("Which friend's time do you want to remove?");
                 data.remove(&to_remove);
-
-                continue;
             }
             'E' => {
                 let data_out = serde_json::to_string_pretty(&data).expect("This doesn't parse for some reason!");
                 fs::write(".friendstime.json", data_out).unwrap();
-                exit(1)
+                exit(0)
             }
             _ => {
                 println!("Type A, R, or E.");
-                continue;
             }
         }
     }
