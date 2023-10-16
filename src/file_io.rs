@@ -1,48 +1,37 @@
-use std::fs::{self, File};
-use serde::{Deserialize, Serialize};
-use serde_json::{json, Value};
 use std::io::stdin;
+use std::collections::HashMap;
 
 pub fn get_data(msg: &str) -> String {
     println!("{msg}");
-    let mut offset_in = String::new();
+    let mut data_in = String::new();
     
-    stdin().read_line(&mut offset_in).unwrap();
+    stdin().read_line(&mut data_in).unwrap();
 
-    return offset_in;
+    return data_in;
 }
 
-pub fn first_run(path: &String) {
+pub fn first_run() -> HashMap<String, i8> {
+    let mut data = HashMap::new();
+
     let name = get_data("What is your name?").trim().to_string();
-    let offset: i32 = get_data("What is your UTC offset?").trim().parse().expect("huh");
+    let offset: i8 = loop {
+            match get_data("What is your UTC offset?").trim().parse() {
+            Ok(num) => break num,
+            Err(_) => {
+                println!("That isn't a valid number!");
+                continue;
+            }
+        }
+    };
 
-    let first_data = json!({
-        "name": [
-            &name
-        ],
-        "offset": [
-            &offset
-        ]
-    }).to_string();
+    data.insert(name, offset);
 
-    fs::write(&path, first_data).expect("Something bad!");
+    return data;
 }
 
-pub fn write_offset_to_file(path: &str, name: &str, offset: i32) {
+pub fn add_offset(name: &str, offset: i32) {
 
-    let file = File::open(&path).unwrap();
-    let a: Value = serde_json::from_reader(&file).unwrap();
-    let old_file = a.to_string();
-
-    let addition = json!({
-        "name": &name,
-        "offset": &offset
-    }).to_string();
-
-    let new_file = old_file + &addition;
-
-    fs::write(&path, new_file).expect("Something bad!");
 }
 
-pub fn get_offset_from_file(path: String, name: String) {
+pub fn get_offset(name: String) {
 }
