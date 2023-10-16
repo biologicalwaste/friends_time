@@ -28,10 +28,3 @@ pub fn first_run() -> HashMap<String, i8> {
 
     return data;
 }
-
-pub fn add_offset(name: &str, offset: i32) {
-
-}
-
-pub fn get_offset(name: String) {
-}
