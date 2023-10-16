@@ -11,6 +11,10 @@ fn main() {
     };
 
     loop {
+        for name in &data {
+            println!("{} | {}", name.0, name.1);
+        }
+
         let user_response: char = loop { match get_data("Would you like to [A]dd a new friend's time or [R]emove a friend's time? (Or [E]xit.").trim().parse() {
             Ok(response) => break response,
             Err(_) => {
@@ -18,6 +22,7 @@ fn main() {
                 continue;
             }
         }};
+
         match user_response {
             'A' => {
                 let new_name = get_data("What is their name?").trim().to_string();
@@ -34,6 +39,9 @@ fn main() {
                 continue;
             }
             'R' => {
+                let to_remove = get_data("Which friend's time do you want to remove?");
+                data.remove(&to_remove);
+
                 continue;
             }
             'E' => {
