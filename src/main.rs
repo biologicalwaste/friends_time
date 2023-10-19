@@ -1,14 +1,18 @@
-use std::fs::{File, self};
-use std::io::stdin;
+use serde_json;
+use time::UtcOffset;
 use std::collections::HashMap;
+use std::fs::{self, File};
+use std::io::stdin;
 use std::process::exit;
 
-use serde_json;
+use time_handling::offset_parser;
+
+mod time_handling;
 
 fn main() {
     let mut data = match File::open(".friendstime.json") {
         Ok(file) => serde_json::from_reader(file).unwrap(),
-        Err(_) => first_run()
+        Err(_) => first_run(),
     };
 
     loop {
@@ -16,21 +20,23 @@ fn main() {
             println!("{} | {}", name.0, name.1);
         }
 
-        let user_response: char = loop { match get_data("Would you like to [A]dd a new friend's time or [R]emove a friend's time? (Or [E]xit.").trim().parse() {
+        let user_response: char = loop {
+            match get_data("Would you like to [A]dd a new friend's time or [R]emove a friend's time? (Or [E]xit.").trim().parse() {
             Ok(response) => break response,
             Err(_) => {
                 println!("Input needs to be a single character!");
                 continue;
             }
-        }};
+        }
+        };
 
         match user_response {
             'A' => {
                 let new_name = get_data("What is their name?").trim().to_string();
-                let new_offset: i8 = loop { match get_data("What is their UTC offset?").trim().parse() {
-                    Ok(num) => break num,
+                let new_offset = loop { match offset_parser(&get_data("What is their UTC offset? [Format +/-HH:MM]")) {
+                    Ok(offset) => break offset,
                     Err(_) => {
-                        println!("This is not a valid number!");
+                        println!("This doesn't parse correctly!");
                         continue;
                     }
                 }};
@@ -42,7 +48,8 @@ fn main() {
                 data.remove(&to_remove);
             }
             'E' => {
-                let data_out = serde_json::to_string_pretty(&data).expect("This doesn't parse for some reason!");
+                let data_out = serde_json::to_string_pretty(&data)
+                    .expect("This doesn't parse for some reason!");
                 fs::write(".friendstime.json", data_out).unwrap();
                 exit(0)
             }
@@ -56,27 +63,25 @@ fn main() {
 fn get_data(msg: &str) -> String {
     println!("{msg}");
     let mut data_in = String::new();
-    
+
     stdin().read_line(&mut data_in).unwrap();
 
     return data_in;
 }
 
-fn first_run() -> HashMap<String, i8> {
+fn first_run() -> HashMap<String, UtcOffset> {
     let mut data = HashMap::new();
 
     let name = get_data("What is your name?").trim().to_string();
-    let offset: i8 = loop {
-            match get_data("What is your UTC offset?").trim().parse() {
-            Ok(num) => break num,
-            Err(_) => {
-                println!("That isn't a valid number!");
-                continue;
-            }
+    let new_offset = loop { match offset_parser(&get_data("What is their UTC offset? [Format +/-HH:MM]")) {
+        Ok(offset) => break offset,
+        Err(msg) => {
+            println!("{}", msg);
+            continue;
         }
-    };
+    }};
 
-    data.insert(name, offset);
+    data.insert(name, new_offset);
 
     return data;
 }
