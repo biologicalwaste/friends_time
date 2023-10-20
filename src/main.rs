@@ -33,7 +33,7 @@ fn main() {
         match user_response {
             'A' => {
                 let new_name = get_data("What is their name?").trim().to_string();
-                let new_offset = loop { match offset_parser(&get_data("What is their UTC offset? [Format +/-HH:MM]")) {
+                let new_offset = loop { match offset_parser(&get_data("What is their UTC offset? [Format +/-HH:MM]").trim()) {
                     Ok(offset) => break offset,
                     Err(_) => {
                         println!("This doesn't parse correctly!");
@@ -73,7 +73,7 @@ fn first_run() -> HashMap<String, UtcOffset> {
     let mut data = HashMap::new();
 
     let name = get_data("What is your name?").trim().to_string();
-    let new_offset = loop { match offset_parser(&get_data("What is their UTC offset? [Format +/-HH:MM]")) {
+    let new_offset = loop { match offset_parser(&get_data("What is their UTC offset? [Format +/-HH:MM]").trim()) {
         Ok(offset) => break offset,
         Err(msg) => {
             println!("{}", msg);
